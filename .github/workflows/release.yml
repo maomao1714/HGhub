@@ -141,15 +141,11 @@ jobs:
         run: |
           set -euo pipefail
           KS="$RUNNER_TEMP/release.keystore"
-          if [ -z "${KEYSTORE_BASE64:-}" ]; then
-            echo "未配置 ANDROID_KEY_BASE64 secret，生成临时密钥签名（仅供侧载安装）"
-            keytool -genkeypair -keystore "$KS" -alias hghub -keyalg RSA -keysize 2048 -validity 10000 -storepass hghubci -keypass hghubci -dname "CN=HGhub CI, O=HGhub, C=CN"
-            KEY_ALIAS=hghub
-            STORE_PASSWORD=hghubci
-            KEY_PASSWORD=hghubci
-          else
-            echo "$KEYSTORE_BASE64" | base64 -d > "$KS"
-          fi
+          echo "使用云端临时密钥签名（仅供侧载安装）"
+          keytool -genkeypair -keystore "$KS" -alias hghub -keyalg RSA -keysize 2048 -validity 10000 -storepass hghubci -keypass hghubci -dname "CN=HGhub CI, O=HGhub, C=CN"
+          KEY_ALIAS=hghub
+          STORE_PASSWORD=hghubci
+          KEY_PASSWORD=hghubci
           BT="$(ls "$ANDROID_SDK_ROOT/build-tools" | sort -V | tail -1)"
           APKSIGNER="$ANDROID_SDK_ROOT/build-tools/$BT/apksigner"
           mkdir -p artifacts
